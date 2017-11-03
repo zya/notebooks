@@ -11,3 +11,4 @@ checkpoint
 *.index
 *.meta
 *.data*
+MNIST_data
