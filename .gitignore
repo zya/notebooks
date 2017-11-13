@@ -12,3 +12,4 @@ checkpoint
 *.meta
 *.data*
 MNIST_data
+*/face_generation/data*
