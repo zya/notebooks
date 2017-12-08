@@ -12,4 +12,7 @@ checkpoint
 *.meta
 *.data*
 MNIST_data
+*/semi-supervised/data*
+*/semi-supervised/images*
+*/semi-supervised/samples.*
 */face_generation/data*
