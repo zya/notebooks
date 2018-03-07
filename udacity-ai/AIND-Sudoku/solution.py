@@ -14,6 +14,31 @@ units = extract_units(unitlist, boxes)
 peers = extract_peers(units, boxes)
 
 
+def find_naked_twins_in_unit(values, unit):
+    """
+    Given a unit, return the list of naked twins values in that unit
+    """
+    value_counts = {}
+    results = []
+    for box in unit:
+        value = values[box]
+        value_counts[value] = 1 if value not in value_counts else value_counts[value] + 1
+
+    return [key for key, value in value_counts.items() if len(key) == 2 and value == 2]
+
+
+def remove_naked_twins_value_in_unit(values, unit, value):
+    """
+    Remove the given value from boxes in unit
+    """
+    for box in unit:
+        if values[box] != value:
+            for digit in value:
+                values[box] = values[box].replace(digit, '')
+
+    return values
+
+
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
 
@@ -41,29 +66,11 @@ def naked_twins(values):
     and because it is simpler (since the reduce_puzzle function already calls this
     strategy repeatedly).
     """
-    pairs_for_units = {}
-    for i, unit in enumerate(unitlist):
-        pairs = {}
-        for box in unit:
-            value = values[box]
-            if len(value) == 2 and value not in pairs:
-                pairs[value] = 1
-            elif len(value) == 2 and value in pairs:
-                pairs[value] += 1
-
-        pairs_for_units[i] = [key for key, value in pairs.items() if value > 1]
-
-    for i in pairs_for_units:
-        unit = unitlist[i]
-        pairs = pairs_for_units[i]
-        for box in unit:
-            value = values[box]
-            for pair in pairs:
-                if value is not pair and len(value) > 1:
-                    for digit in pair:
-                        v = values[box]
-                        if len(v) > 1:
-                            values[box] = v.replace(digit, '')
+    for unit in unitlist:
+        naked_twins_values = find_naked_twins_in_unit(values, unit)
+        if len(naked_twins_values) > 0:
+            for value in naked_twins_values:
+                values = remove_naked_twins_value_in_unit(values, unit, value)
 
     return values
 
@@ -148,6 +155,8 @@ def reduce_puzzle(values):
         values = eliminate(values)
         # Your code here: Use the Only Choice Strategy
         values = only_choice(values)
+        # Do naked twins
+        values = naked_twins(values)
         # Check how many boxes have a determined value, to compare
         solved_values_after = len(
             [box for box in values.keys() if len(values[box]) == 1])
