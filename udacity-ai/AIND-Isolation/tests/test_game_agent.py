@@ -19,10 +19,11 @@ class IsolationTest(unittest.TestCase):
         self.player1 = "Player1"
         self.player2 = "Player2"
         self.game = isolation.Board(self.player1, self.player2)
-        self.minimax_player = game_agent.MinimaxPlayer()
 
-    def test_minimax(self):
+    def test_custom_score(self):
+        self.minimax_player = game_agent.MinimaxPlayer()
         self.minimax_player.minimax(self.game, 1)
+        # game_agent.custom_score(self.game, self.player1)
 
 
 if __name__ == '__main__':
