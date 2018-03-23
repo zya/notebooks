@@ -285,14 +285,12 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if depth <= 0:
-            return self.score(game, self)
-
-        if self.is_terminal(game):
+        if depth <= 0 or self.is_terminal(game):
             return self.score(game, self)
 
         opponent = game.get_opponent(self)
         v = float("inf")
+
         for m in game.get_legal_moves(opponent):
             state_copy = game.forecast_move(m)
             v = min(v, self.max_value(state_copy, depth - 1, alpha, beta))
@@ -306,10 +304,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if depth <= 0:
-            return self.score(game, self)
-
-        if self.is_terminal(game):
+        if depth <= 0 or self.is_terminal(game):
             return self.score(game, self)
 
         v = float("-inf")
@@ -360,8 +355,20 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # Initialize the best move so that this function returns something
+        # in case the search fails due to timeout
+        best_move = (-1, -1)
+
+        try:
+            # The try/except block will automatically catch the exception
+            # raised when the timer is about to expire.
+            return self.alphabeta(game, self.search_depth)
+
+        except SearchTimeout:
+            pass  # Handle any actions required after timeout as needed
+
+        # Return the best move from the last completed search iteration
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -411,9 +418,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # v ← MAX-VALUE(state, −∞, +∞)
-        # return the action in ACTIONS(state) with value v
-
         if len(game.get_legal_moves()) <= 0:
             return (-1, -1)
 
@@ -421,7 +425,10 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = None
         for m in game.get_legal_moves(self):
             state_copy = game.forecast_move(m)
-            v = self.max_value(state_copy, depth - 1, alpha, beta)
+            v = self.min_value(state_copy, depth - 1, alpha, beta)
+
+            alpha = max(alpha, v)
+
             if v > best_score:
                 best_score = v
                 best_move = m
