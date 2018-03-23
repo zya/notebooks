@@ -281,6 +281,53 @@ class AlphaBetaPlayer(IsolationPlayer):
     make sure it returns a good move before the search time limit expires.
     """
 
+    def min_value(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth <= 0:
+            return self.score(game, self)
+
+        if self.is_terminal(game):
+            return self.score(game, self)
+
+        opponent = game.get_opponent(self)
+        v = float("inf")
+        for m in game.get_legal_moves(opponent):
+            state_copy = game.forecast_move(m)
+            v = min(v, self.max_value(state_copy, depth - 1, alpha, beta))
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+
+        return v
+
+    def max_value(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth <= 0:
+            return self.score(game, self)
+
+        if self.is_terminal(game):
+            return self.score(game, self)
+
+        v = float("-inf")
+        for m in game.get_legal_moves(self):
+            state_copy = game.forecast_move(m)
+            v = max(v, self.min_value(state_copy, depth - 1, alpha, beta))
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
+
+        return v
+
+    def is_terminal(self, game):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        return not bool(game.get_legal_moves(self))
+
     def get_move(self, game, time_left):
         """Search for the best move from the available legal moves and return a
         result before the time limit expires.
@@ -364,5 +411,19 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # v ← MAX-VALUE(state, −∞, +∞)
+        # return the action in ACTIONS(state) with value v
+
+        if len(game.get_legal_moves()) <= 0:
+            return (-1, -1)
+
+        best_score = float("-inf")
+        best_move = None
+        for m in game.get_legal_moves(self):
+            state_copy = game.forecast_move(m)
+            v = self.max_value(state_copy, depth - 1, alpha, beta)
+            if v > best_score:
+                best_score = v
+                best_move = m
+
+        return best_move
