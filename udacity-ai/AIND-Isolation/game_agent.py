@@ -20,6 +20,9 @@ def custom_score(game: isolation.Board, player):
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
 
+    Heuristic:
+        number of my moves - number of opponent's moves
+
     Parameters
     ----------
     game : `isolation.Board`
@@ -54,6 +57,9 @@ def custom_score_2(game, player):
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
 
+    Heuristic:
+        number of my moves - (number of opponent's moves * 1.5)
+
     Parameters
     ----------
     game : `isolation.Board`
@@ -69,8 +75,15 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_winner(player):
+        return 1
+    elif game.is_loser(player):
+        return -1
+
+    opponent = game.get_opponent(player)
+    number_of_moves = game.get_legal_moves(player)
+    number_of_opponent_moves = game.get_legal_moves(opponent)
+    return float(len(number_of_moves) - (len(number_of_opponent_moves) * 1.5))
 
 
 def custom_score_3(game, player):
@@ -95,8 +108,22 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_winner(player):
+        return 1
+    elif game.is_loser(player):
+        return -1
+
+    opponent = game.get_opponent(player)
+    number_of_moves = game.get_legal_moves(player)
+    number_of_opponent_moves = game.get_legal_moves(opponent)
+
+    if len(number_of_moves) is 0:
+        return -1
+
+    if len(number_of_opponent_moves) is 0:
+        return 1
+
+    return - float(len(number_of_moves) / len(number_of_opponent_moves))
 
 
 class IsolationPlayer:
