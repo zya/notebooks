@@ -1,7 +1,3 @@
-"""Finish all TODO items in this file to complete the isolation project, then
-test your agent's strength against a set of known agents using tournament.py
-and include the results in your report.
-"""
 import random
 import isolation
 
@@ -20,7 +16,7 @@ def custom_score(game: isolation.Board, player):
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
 
-    Heuristic:
+    Heuristic Description:
         number of my moves - number of opponent's moves
 
     Parameters
@@ -57,7 +53,7 @@ def custom_score_2(game, player):
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
 
-    Heuristic:
+    Heuristic Description:
         number of my moves - (number of opponent's moves * 1.5)
 
     Parameters
@@ -92,6 +88,9 @@ def custom_score_3(game, player):
 
     Note: this function should be called from within a Player instance as
     `self.score()` -- you should not need to call this function directly.
+
+    Heuristic Description:
+        number of my moves / number of opponent's moves
 
     Parameters
     ----------
