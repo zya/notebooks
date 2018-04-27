@@ -128,7 +128,7 @@ classes, and the search methods in the AIMA library.
 #### TODO: Implement a Planning Graph with automatic heuristics in `my_planning_graph.py`
 - `PlanningGraph.add_action_level` method
 - `PlanningGraph.add_literal_level` method
-- `PlanningGraph.inconsistent_effects_mutex` method
+- `PlanningGraph.breadth_first` method
 - `PlanningGraph.interference_mutex` method
 - `PlanningGraph.competing_needs_mutex` method
 - `PlanningGraph.negation_mutex` method
