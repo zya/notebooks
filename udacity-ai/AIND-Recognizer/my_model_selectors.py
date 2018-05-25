@@ -34,6 +34,7 @@ class ModelSelector(object):
     def base_model(self, num_states):
         # with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)
+        np.warnings.filterwarnings('ignore')
         # warnings.filterwarnings("ignore", category=RuntimeWarning)
         try:
             hmm_model = GaussianHMM(n_components=num_states, covariance_type="diag", n_iter=1000,
@@ -75,9 +76,29 @@ class SelectorBIC(ModelSelector):
         :return: GaussianHMM object
         """
         warnings.filterwarnings("ignore", category=DeprecationWarning)
+        np.warnings.filterwarnings('ignore')
 
-        # TODO implement model selection based on BIC scores
-        raise NotImplementedError
+        result_model = self.base_model(self.n_constant)
+        max_value = float('inf')
+
+        for n_components in range(self.min_n_components, self.max_n_components+1):
+            try:
+                model = GaussianHMM(n_components=n_components, n_iter=1000).fit(
+                    self.X, self.lengths)
+
+                score = model.score(self.X, self.lengths)
+                p = n_components * n_components + 2 * len(self.X[0]) * n_components - 1
+                N = len(self.X)
+
+                current_value = -2 * score + p * np.log(N)
+
+                if current_value < max_value:
+                    max_value = current_value
+                    result_model = model
+            except:
+                pass
+
+        return result_model
 
 
 class SelectorDIC(ModelSelector):
@@ -92,9 +113,30 @@ class SelectorDIC(ModelSelector):
 
     def select(self):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
+        np.warnings.filterwarnings('ignore')
 
-        # TODO implement model selection based on DIC scores
-        raise NotImplementedError
+        result_model = self.base_model(self.n_constant)
+        max_value = float('-inf')
+
+        for n_components in range(self.min_n_components, self.max_n_components+1):
+            try:
+                model = GaussianHMM(n_components=n_components, n_iter=1000).fit(self.X, self.lengths)
+                score = model.score(self.X, self.lengths)
+                scores_sum = []
+                for word in self.words:
+                    if word != self.this_word:
+                        X_temp, length_temp = self.hwords[word]
+                        scores_sum.append(model.score(X_temp, length_temp))
+
+                current_value = score - np.average(scores_sum)
+
+                if current_value > max_value:
+                    max_value = current_value
+                    result_model = model
+            except:
+                pass
+
+        return result_model
 
 
 class SelectorCV(ModelSelector):
@@ -104,6 +146,31 @@ class SelectorCV(ModelSelector):
 
     def select(self):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
+        np.warnings.filterwarnings('ignore')
 
-        # TODO implement model selection using CV
-        raise NotImplementedError
+        result_model = self.base_model(self.n_constant)
+        max_value = float('-inf')
+
+        if len(self.sequences) < 2:
+            return None
+            
+        kfold = KFold()
+
+        for n_components in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                scores = []
+                for cv_train_idx, cv_test_idx in kfold.split(self.sequences):
+                    X_train, length_train = combine_sequences(cv_train_idx, self.sequences)
+                    X_test, length_test = combine_sequences(cv_test_idx, self.sequences)
+                    model = GaussianHMM(n_components=n_components, n_iter=1000).fit(X_train, length_train)
+                    scores.append(model.score(X_test, length_test))
+
+                current_value = np.sum(scores)
+
+                if current_value > max_value:
+                    max_value = current_value
+                    result_model = model
+            except:
+                pass
+
+        return result_model
