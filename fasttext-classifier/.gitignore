@@ -5,5 +5,10 @@ cooking.bin
 cooking.ftz
 cooking.train
 cooking.valid
+credits.valid
+credits.train
+credits.ftz
+credits.bin
 readme.txt
 spam.bin
+spam.ftz
